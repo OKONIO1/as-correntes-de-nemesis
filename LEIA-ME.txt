@@ -1,0 +1,41 @@
+=============================================
+  AS CORRENTES DE NÊMESIS — Parte I
+  Um jogo de ação na mitologia grega
+=============================================
+
+COMO JOGAR
+1. Descompacte (extraia) a pasta inteira. Não abra de dentro do .zip!
+2. Dê dois cliques em  index.html  (abre no navegador).
+   Use Google Chrome ou Microsoft Edge, de preferência.
+3. Precisa de INTERNET na primeira vez (o motor 3D vem da internet).
+4. Espere alguns segundos: os personagens 3D demoram um pouco para carregar.
+5. Clique em "Nova jornada".
+
+CONTROLES
+  W A S D ............ andar
+  Espaço ............. pular (de novo no ar = pulo duplo)
+  Shift .............. esquiva
+  J / clique esquerdo  combo de golpes
+  K / clique direito . giro pesado (quebra escudos)
+  E .................. altares, baús e alavancas
+  1 2 3 4 / Q ........ poderes dos deuses
+  Esc ................ pausa
+  F .................. mostrar FPS     M ...... som
+
+NO CELULAR (deitado)
+  Analógico .......... arraste o dedo no lado esquerdo da tela
+  Botões à direita ... ATACAR, GIRO, PULO, ESQUIVA, PODER (e USAR perto de altares)
+  Ícones no topo ..... toque para usar cada poder     ❚❚ = pausa
+
+DICAS
+  - Vermelho no chão = um golpe forte vai cair ali. Saia!
+  - Ondas de choque no chão: PULE por cima.
+  - Se o jogo travar: Opções > Qualidade > Média ou Baixa.
+
+O jogo tem 10 fases e 5 chefes (fases 2, 4, 6, 8 e 10).
+Depois de testar, conte o que achou: dificuldade, controles,
+o que travou, o que foi divertido e o que foi chato!
+
+---------------------------------------------
+Criação: Gabriel
+Personagens 3D: KayKit, por Kay Lousberg (licença CC0)

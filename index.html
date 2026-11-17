@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>As Correntes de Nêmesis</title>
+  <!-- app instalável no celular (PWA) -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#140806">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Nêmesis">
+  <link rel="apple-touch-icon" href="icons/icon-180.png">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- O Three.js desenha a cena 3D dentro deste elemento -->
+  <div id="game"></div>
+
+  <!-- HUD (vida, mana, fúria, poderes, progresso) -->
+  <div id="hud" class="hidden">
+    <div id="bars">
+      <div class="hero-name">TERON DE ARGOS</div>
+      <div class="bar hp"><div class="ghost"></div><div class="fill"></div><span>VIDA</span></div>
+      <div class="bar mana"><div class="fill"></div><span>MANA</span></div>
+      <div class="bar fury"><div class="fill"></div><span>FÚRIA</span></div>
+    </div>
+    <div id="phase"></div>
+    <div id="progress"><div class="track"></div><div class="me"></div></div>
+    <div id="powers"></div>
+    <div id="combo"></div>
+    <div id="dmg"></div>
+    <div id="prompt"></div>
+    <div id="toast"></div>
+    <div id="banner"></div>
+    <div id="hint"></div>
+    <div id="dialog"><div class="who"></div><div class="text"></div></div>
+    <div id="bossbar" class="hidden"><div class="bname"></div><div class="bbar"><div class="fill"></div></div></div>
+  </div>
+
+  <!-- abertura de cada fase e escurecimento entre telas -->
+  <div id="intro"><div class="num"></div><div class="name"></div><div class="sub"></div></div>
+  <div id="fade"></div>
+
+  <!-- celular em pé: pede para deitar -->
+  <div id="rotate"><div class="phone">📱</div><p>Gire o celular para jogar<br><small>(o jogo é na horizontal)</small></p></div>
+
+  <!-- PRÓLOGO ANIMADO (cenas 3D com narração) -->
+  <div id="cine" class="hidden">
+    <div class="lb top"></div><div class="lb bottom"></div>
+    <div id="cineTitle"><div class="pre">PRÓLOGO</div><div class="big">AS CORRENTES DE NÊMESIS</div></div>
+    <div class="cap"><div class="ttl"></div><div class="txt"></div></div>
+    <div class="dots"></div>
+    <button id="btnCineSkip" class="skip">Pular ▸▸</button>
+    <div id="cineFade"></div>
+  </div>
+
+  <!-- CINEMÁTICA DA HISTÓRIA (prólogo, capítulos, epílogo) -->
+  <div id="story" class="hidden">
+    <div class="lb top"></div><div class="lb bottom"></div>
+    <div class="box">
+      <div class="chap"></div>
+      <div class="title"></div>
+      <div class="text"></div>
+      <div class="dots"></div>
+      <div class="next">Clique, ENTER ou ESPAÇO para continuar</div>
+    </div>
+    <button id="btnSkip" class="skip">Pular ▸▸</button>
+  </div>
+
+  <!-- TELA INICIAL -->
+  <div id="start" class="overlay start">
+    <div class="panel menu">
+      <h1>AS CORRENTES<br>DE NÊMESIS</h1>
+      <p class="sub">A jornada de Teron de Argos até o trono de Ares</p>
+
+      <!-- menu principal -->
+      <div class="page" id="page-main">
+        <button id="btnContinue" class="primary hidden">Continuar</button>
+        <button id="btnPlay" class="primary">Nova jornada</button>
+        <button data-page="levels">Escolher fase</button>
+        <button id="btnOptionsStart">Opções</button>
+        <button data-page="controls">Controles</button>
+        <button data-page="credits">Créditos</button>
+        <p class="hint">Precisa de internet na primeira vez (o Three.js vem de um CDN).</p>
+      </div>
+
+      <!-- escolher fase -->
+      <div class="page hidden" id="page-levels">
+        <h3>Escolher fase</h3>
+        <div id="levelGrid"></div>
+        <button data-page="main" class="small">← Voltar</button>
+        <button id="btnReset" class="small">Apagar progresso salvo</button>
+      </div>
+
+      <!-- controles -->
+      <div class="page hidden" id="page-controls">
+        <h3>Controles</h3>
+        <table class="controls">
+          <tr><td>W A S D</td><td>Andar (relativo à câmera)</td></tr>
+          <tr><td>Espaço</td><td>Pular · no ar de novo = pulo duplo</td></tr>
+          <tr><td>Shift</td><td>Esquiva invulnerável</td></tr>
+          <tr><td>J / Clique esquerdo</td><td>Combo de 4 golpes</td></tr>
+          <tr><td>K / Clique direito</td><td>Giro pesado (arremessa e quebra guardas)</td></tr>
+          <tr><td>E</td><td>Altares, baús e alavancas</td></tr>
+          <tr><td>1 2 3 4</td><td>Poderes divinos (liberados nos altares)</td></tr>
+          <tr><td>Q / rodinha</td><td>Usar / trocar o poder selecionado</td></tr>
+          <tr><td>Esc / P</td><td>Pausar</td></tr>
+          <tr><td>M · F</td><td>Som liga/desliga · contador de FPS</td></tr>
+        </table>
+        <p class="hint">Dica: o VERMELHO no chão mostra onde o golpe forte vai cair. Linha vermelha piscando = flecha a caminho.</p>
+        <button data-page="main" class="small">← Voltar</button>
+      </div>
+
+      <!-- créditos -->
+      <div class="page hidden" id="page-credits">
+        <h3>Créditos</h3>
+        <p class="credits">
+          <b>As Correntes de Nêmesis</b> — um jogo original de ação inspirado na mitologia grega.<br><br>
+          Criação e direção: <b>Gabriel</b><br>
+          Programação, modelos 3D procedurais e música sintetizada: feitos em código com <b>Claude</b> (Anthropic)<br><br>
+          Personagens 3D animados: <b>KayKit</b> — Adventurers e Skeletons, por <b>Kay Lousberg</b> (www.kaylousberg.com), licença CC0.<br>
+          Monstros, cenários, efeitos e música: gerados pelo código.<br>
+          Tecnologias: Three.js (3D) e Web Audio API (som).<br><br>
+          <i>Fim da Parte I. A jornada de Teron continua…</i>
+        </p>
+        <button data-page="main" class="small">← Voltar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPÇÕES (abre do menu inicial ou da pausa) -->
+  <div id="options" class="overlay hidden">
+    <div class="panel small">
+      <h2>OPÇÕES</h2>
+      <div class="opts">
+        <label>Música <input type="range" id="optMusic" min="0" max="1" step="0.05"></label>
+        <label>Efeitos <input type="range" id="optSfx" min="0" max="1" step="0.05"></label>
+        <label>Distância da câmera <input type="range" id="optCam" min="11" max="22" step="0.5"></label>
+        <label>Qualidade gráfica
+          <select id="optQuality">
+            <option value="alta">Alta (sombras nítidas)</option>
+            <option value="media">Média</option>
+            <option value="baixa">Baixa (sem sombras, mais leve)</option>
+          </select>
+        </label>
+        <label class="check"><input type="checkbox" id="optShake"> Tremor de câmera</label>
+        <label class="check"><input type="checkbox" id="optFps"> Mostrar FPS</label>
+      </div>
+      <button id="btnOptionsBack" class="primary">Voltar</button>
+    </div>
+  </div>
+
+  <!-- PAUSA -->
+  <div id="pause" class="overlay hidden">
+    <div class="panel small menu">
+      <h2>PAUSADO</h2>
+      <button id="btnResume" class="primary">Continuar</button>
+      <button id="btnCheckpoint">Voltar ao último altar</button>
+      <button id="btnRestart">Reiniciar a fase</button>
+      <button id="btnOptionsPause">Opções</button>
+      <button id="btnMenuPause">Menu principal</button>
+    </div>
+  </div>
+
+  <!-- FASE CONCLUÍDA / VITÓRIA -->
+  <div id="complete" class="overlay hidden">
+    <div class="panel small menu">
+      <h2 id="completeTitle">FASE CONCLUÍDA</h2>
+      <p id="completeText" class="sub"></p>
+      <div id="completeStats" class="stats"></div>
+      <button id="btnNext" class="primary">Próxima fase</button>
+      <button id="btnCredits" class="hidden">Créditos</button>
+      <button id="btnMenuComplete">Menu principal</button>
+    </div>
+  </div>
+
+  <!-- MORTE -->
+  <div id="dead" class="overlay dead hidden">
+    <div class="panel small menu">
+      <h2>VOCÊ MORREU</h2>
+      <p id="deadQuote" class="sub"></p>
+      <button id="btnRetry" class="primary">Tentar de novo</button>
+      <button id="btnMenuDead">Menu principal</button>
+      <p class="hint">R ou Enter = tentar de novo</p>
+    </div>
+  </div>
+
+  <!-- Three.js (versão 0.149, que ainda funciona como script comum) -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js"></script>
+  <!-- leitor de modelos 3D (glTF) e cópia de personagens com esqueleto -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.147.0/examples/js/utils/SkeletonUtils.js"></script>
+  <!-- personagens 3D (KayKit, Kay Lousberg, CC0) embutidos como texto -->
+  <script src="assets/Barbarian.js"></script>
+  <script src="assets/Knight.js"></script>
+  <script src="assets/Rogue_Hooded.js"></script>
+  <script src="assets/Skeleton_Warrior.js"></script>
+  <script src="assets/Skeleton_Rogue.js"></script>
+  <!-- Scripts do jogo (clássicos, sem módulos: funciona abrindo o arquivo direto) -->
+  <script src="src/utils.js"></script>
+  <script src="src/audio.js"></script>
+  <script src="src/levelBuilder.js"></script>
+  <script src="src/models.js"></script>
+  <script src="src/rig.js"></script>
+  <script src="src/monsters.js"></script>
+  <script src="src/player.js"></script>
+  <script src="src/combat.js"></script>
+  <script src="src/powers.js"></script>
+  <script src="src/enemies.js"></script>
+  <script src="src/bosses.js"></script>
+  <script src="src/bosses2.js"></script>
+  <script src="src/phases.js"></script>
+  <script src="src/graphics.js"></script>
+  <script src="src/story.js"></script>
+  <script src="src/cinematic.js"></script>
+  <script src="src/cine_story.js"></script>
+  <script src="src/ui.js"></script>
+  <script src="src/touch.js"></script>
+  <script src="src/menus.js"></script>
+  <script src="src/main.js"></script>
+  <script>
+    if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+      addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+    }
+  </script>
+</body>
+</html>
